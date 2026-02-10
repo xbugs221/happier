@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
-- `yarn start` - Start the Expo development server
+- `pnpm start` - Start the Expo development server
 - `yarn ios` - Run the app on iOS simulator
 - `yarn android` - Run the app on Android emulator
 - `yarn web` - Run the app in web browser
 - `yarn prebuild` - Generate native iOS and Android directories
-- `yarn typecheck` - Run TypeScript type checking after all changes
+- `pnpm typecheck` - Run TypeScript type checking after all changes
 
 ### macOS Desktop (Tauri)
 - `yarn tauri:dev` - Run macOS desktop app with hot reload
@@ -19,7 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `yarn tauri:build:production` - Build production variant
 
 ### Testing
-- `yarn test` - Run tests in watch mode (Vitest)
+- `pnpm test` - Run tests in watch mode (Vitest)
 - No existing tests in the codebase yet
 
 ### Production
@@ -116,7 +116,7 @@ sources/
 - When setting screen parameters ALWAYS set them in _layout.tsx if possible this avoids layout shifts
 - **Never use Alert module from React Native, always use @sources/modal/index.ts instead**
 - **Always apply layout width constraints** from `@/components/layout` to full-screen ScrollViews and content containers for responsive design across device sizes
-- Always run `yarn typecheck` after all changes to ensure type safety
+- Always run `pnpm typecheck` after all changes to ensure type safety
 
 ### Internationalization (i18n) Guidelines
 

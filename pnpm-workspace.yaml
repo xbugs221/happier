@@ -1,0 +1,4 @@
+packages:
+  - 'packages/happy-app'
+  - 'packages/happy-cli'
+  - 'packages/happy-server'

@@ -7,13 +7,19 @@
 - Git
 - Node.js >= 20
 - npm（随 Node.js 一起安装）
-- Yarn 1.x（本仓库使用 Yarn workspace）
+- pnpm 9.x（本仓库使用 pnpm workspace）
 
-如果你的环境还没有 Yarn 1.x，可以用 Corepack 启用：
+如果你的环境还没有 pnpm，可以用 Corepack 启用：
 
 ```bash
 corepack enable
-corepack prepare yarn@1.22.22 --activate
+corepack prepare pnpm@9.15.9 --activate
+```
+
+或者使用 npm 全局安装：
+
+```bash
+npm install -g pnpm@9
 ```
 
 ## 1. 克隆仓库
@@ -26,13 +32,13 @@ cd happy
 ## 2. 安装依赖
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ## 3. 构建 CLI
 
 ```bash
-yarn workspace happy-coder build
+pnpm --filter happy-coder build
 ```
 
 ## 4. 全局安装本地源码版本
@@ -59,8 +65,8 @@ happy codex
 
 ```bash
 git pull
-yarn install
-yarn workspace happy-coder build
+pnpm install
+pnpm --filter happy-coder build
 npm install -g ./packages/happy-cli
 ```
 

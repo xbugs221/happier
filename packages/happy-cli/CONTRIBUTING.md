@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Node.js >= 20.0.0
-- Yarn (`npm install -g yarn`)
+- Yarn (`npm install -g pnpm`)
 - Git
 - Claude CLI installed and logged in (`claude` command available in PATH)
 
@@ -12,8 +12,8 @@
 ```bash
 git clone https://github.com/slopus/happy-cli.git
 cd happy-cli
-yarn install
-yarn build
+pnpm install
+pnpm build
 ```
 
 ## Development Commands
@@ -23,8 +23,8 @@ yarn build
 Create a global `happy-dev` command that runs your local development build:
 
 ```bash
-yarn link:dev      # Create happy-dev symlink
-yarn unlink:dev    # Remove happy-dev symlink
+pnpm link:dev      # Create happy-dev symlink
+pnpm unlink:dev    # Remove happy-dev symlink
 ```
 
 This creates a `happy-dev` command in your PATH pointing to your local build, while leaving any npm-installed `happy` command untouched.
@@ -34,15 +34,15 @@ This creates a `happy-dev` command in your PATH pointing to your local build, wh
 | `happy` | Stable npm version (from `npm install -g happy-coder`) |
 | `happy-dev` | Local development version (from this repo) |
 
-**Note:** Run `yarn build` before `yarn link:dev` to ensure the binary exists.
+**Note:** Run `pnpm build` before `pnpm link:dev` to ensure the binary exists.
 
 ### Build Commands
 
 ```bash
-yarn build         # Build the project
-yarn typecheck     # TypeScript type checking
-yarn test          # Run tests
-yarn dev           # Run without building (uses tsx)
+pnpm build         # Build the project
+pnpm typecheck     # TypeScript type checking
+pnpm test          # Run tests
+pnpm dev           # Run without building (uses tsx)
 ```
 
 ## Stable vs Dev Data Isolation
@@ -193,9 +193,9 @@ npm run stable:daemon:status   # Shows ~/.happy/ data location
 npm run dev:daemon:status       # Shows ~/.happy-dev/ data location
 ```
 
-### `yarn link:dev` fails with permission denied?
+### `pnpm link:dev` fails with permission denied?
 ```bash
-sudo yarn link:dev
+sudo pnpm link:dev
 ```
 
 ### `happy-dev` command not found after linking?
@@ -215,9 +215,9 @@ sudo yarn link:dev
 
 ```bash
 # Initial setup (once)
-yarn install
-yarn build
-yarn link:dev
+pnpm install
+pnpm build
+pnpm link:dev
 npm run setup:dev
 
 # Authenticate both
@@ -323,7 +323,7 @@ When modifying profile schemas:
 Maintainers can publish new versions:
 
 ```bash
-yarn release       # Interactive version bump, changelog, publish
+pnpm release       # Interactive version bump, changelog, publish
 ```
 
 This runs tests, builds, and publishes to npm. The published package includes:

@@ -27,11 +27,11 @@ This document contains the development guidelines and instructions for the Happy
 ## Development Environment
 
 ### Commands
-- `yarn build` - TypeScript type checking
-- `yarn start` - Start the server
-- `yarn test` - Run tests
-- `yarn migrate` - Run Prisma migrations
-- `yarn generate` - Generate Prisma client
+- `pnpm build` - TypeScript type checking
+- `pnpm start` - Start the server
+- `pnpm test` - Run tests
+- `pnpm migrate` - Run Prisma migrations
+- `pnpm generate` - Generate Prisma client
 - `yarn db` - Start local PostgreSQL in Docker
 
 ### Environment Requirements
@@ -135,7 +135,7 @@ This document contains the development guidelines and instructions for the Happy
 - Use "inTx" to wrap database operations in transactions
 - Do not update schema without absolute necessity
 - For complex fields, use "Json" type
-- NEVER DO MIGRATION YOURSELF. Only run yarn generate when new types needed
+- NEVER DO MIGRATION YOURSELF. Only run pnpm generate when new types needed
 
 ### Current Schema Status
 The project has pending Prisma migrations that need to be applied:
@@ -206,8 +206,8 @@ The project includes a multi-stage Dockerfile:
 - **Tell**: "pathname /" in mobile logs = app stuck at root screen
 
 #### Environment Variables
-- CLI: Use `yarn dev:local-server` (NOT `yarn dev`) to load `.env.dev-local-server`
-- Server: Use `yarn dev` to start with proper env files
+- CLI: Use `pnpm dev:local-server` (NOT `pnpm dev`) to load `.env.dev-local-server`
+- Server: Use `pnpm dev` to start with proper env files
 - **Tell**: Wrong server URL = check `HAPPY_SERVER_URL` env var
 - **Tell**: Wrong home dir = check `HAPPY_HOME_DIR` (should be `~/.happy-dev` for local)
 

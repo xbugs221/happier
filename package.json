@@ -1,26 +1,13 @@
 {
     "name": "monorepo",
     "private": true,
-    "workspaces": {
-        "packages": [
-            "packages/happy-app",
-            "packages/happy-cli",
-            "packages/happy-server"
-        ],
-        "nohoist": [
-            "**/zod",
-            "**/react",
-            "**/react-dom",
-            "**/react-native",
-            "**/react-native/**",
-            "**/react-native-edge-to-edge/**",
-            "**/react-native-incall-manager/**",
-            "packages/happy-cli/ink",
-            "packages/happy-cli/ink/**"
-        ]
-    },
-    "resolutions": {
-        "packages/happy-cli/react": "19.1.0"
-    },
-    "packageManager": "yarn@1.22.22"
+    "packageManager": "pnpm@9.15.9",
+    "pnpm": {
+        "overrides": {
+            "react": "19.1.0",
+            "whatwg-url": "14.2.0",
+            "parse-path": "7.0.3",
+            "@types/parse-path": "7.0.3"
+        }
+    }
 }

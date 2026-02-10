@@ -9,7 +9,7 @@
 - 提供开源、可自托管的服务端与可发布的 CLI/App 客户端
 
 ## Tech Stack
-- Monorepo: Yarn Workspaces (Yarn 1.22), Node.js >= 20
+- Monorepo: pnpm Workspaces (pnpm 9.x), Node.js >= 20
 - Language: TypeScript (all core packages use `strict` mode)
 - `packages/happy-app`: React Native 0.81 + Expo 54 + Expo Router 6, Unistyles, Zustand, libsodium, Socket.IO client, LiveKit, Tauri (desktop variant)
 - `packages/happy-cli`: TypeScript CLI (`happy`), Ink, Fastify, Zod, Socket.IO client, TweetNaCl, MCP/ACP SDK, pkgroll build
@@ -24,7 +24,7 @@
 - Import 放在文件顶部，避免中途动态插入 import（除确有必要的按需加载）
 - 以现有文件风格为准（仓库没有统一的根级 Prettier/ESLint 规则）
 - `happy-app` 的用户可见文案优先走 i18n（`t(...)`）并同步多语言词条
-- 包管理与 workspace 命令统一使用 Yarn（例如 `yarn workspace happy-coder build`）
+- 包管理与 workspace 命令统一使用 Yarn（例如 `pnpm --filter happy-coder build`）
 
 ### Architecture Patterns
 - 三包分层架构：
