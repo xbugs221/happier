@@ -9,6 +9,7 @@ import { configuration } from '@/configuration';
 import chalk from 'chalk';
 import { Credentials } from '@/persistence';
 import { connectionState, isNetworkError } from '@/utils/serverConnectionErrors';
+import { controlPlaneHttp, withControlPlaneHttpConfig } from './controlPlaneHttp';
 
 export class ApiClient {
 
@@ -57,7 +58,7 @@ export class ApiClient {
 
     // Create session
     try {
-      const response = await axios.post<CreateSessionResponse>(
+      const response = await controlPlaneHttp.post<CreateSessionResponse>(
         `${configuration.serverUrl}/v1/sessions`,
         {
           tag: opts.tag,
@@ -65,13 +66,13 @@ export class ApiClient {
           agentState: opts.state ? encodeBase64(encrypt(encryptionKey, encryptionVariant, opts.state)) : null,
           dataEncryptionKey: dataEncryptionKey ? encodeBase64(dataEncryptionKey) : null,
         },
-        {
+        withControlPlaneHttpConfig({
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json'
           },
           timeout: 60000 // 1 minute timeout for very bad network connections
-        }
+        })
       )
 
       logger.debug(`Session created/loaded: ${response.data.session.id} (tag: ${opts.tag})`)
@@ -177,7 +178,7 @@ export class ApiClient {
 
     // Create machine
     try {
-      const response = await axios.post(
+      const response = await controlPlaneHttp.post(
         `${configuration.serverUrl}/v1/machines`,
         {
           id: opts.machineId,
@@ -185,13 +186,13 @@ export class ApiClient {
           daemonState: opts.daemonState ? encodeBase64(encrypt(encryptionKey, encryptionVariant, opts.daemonState)) : undefined,
           dataEncryptionKey: dataEncryptionKey ? encodeBase64(dataEncryptionKey) : undefined
         },
-        {
+        withControlPlaneHttpConfig({
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json'
           },
           timeout: 60000 // 1 minute timeout for very bad network connections
-        }
+        })
       );
 
 
@@ -291,18 +292,18 @@ export class ApiClient {
    */
   async registerVendorToken(vendor: 'openai' | 'anthropic' | 'gemini', apiKey: any): Promise<void> {
     try {
-      const response = await axios.post(
+      const response = await controlPlaneHttp.post(
         `${configuration.serverUrl}/v1/connect/${vendor}/register`,
         {
           token: JSON.stringify(apiKey)
         },
-        {
+        withControlPlaneHttpConfig({
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json'
           },
           timeout: 5000
-        }
+        })
       );
 
       if (response.status !== 200 && response.status !== 201) {
@@ -322,15 +323,15 @@ export class ApiClient {
    */
   async getVendorToken(vendor: 'openai' | 'anthropic' | 'gemini'): Promise<any | null> {
     try {
-      const response = await axios.get(
+      const response = await controlPlaneHttp.get(
         `${configuration.serverUrl}/v1/connect/${vendor}/token`,
-        {
+        withControlPlaneHttpConfig({
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json'
           },
           timeout: 5000
-        }
+        })
       );
 
       if (response.status === 404) {

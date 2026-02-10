@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+bun.lock
 
 # Expo
 .expo/
@@ -39,7 +40,7 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-.claude/settings.local.json
+.claude/
 .plan
 
 CLAUDE.local.md

@@ -103,6 +103,11 @@ happy gemini project get          # Show current Google Cloud Project ID
 - `GEMINI_MODEL` - Override default Gemini model
 - `GOOGLE_CLOUD_PROJECT` - Google Cloud Project ID (required for Workspace accounts)
 
+### Proxy Behavior
+
+- Happy control-plane REST requests (machine/session bootstrap, connect token endpoints, push-token fetch, health checks) ignore ambient proxy env vars: `http_proxy`, `https_proxy`, `all_proxy`, `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`.
+- Spawned agent processes (Claude/Codex/Gemini) still inherit your shell proxy env vars unless you override them with agent-specific options.
+
 ## Gemini Authentication
 
 ### Personal Google Account

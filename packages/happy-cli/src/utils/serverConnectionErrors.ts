@@ -52,6 +52,7 @@ import axios from 'axios';
 import chalk from 'chalk';
 import { exponentialBackoffDelay } from '@/utils/time';
 import { logger } from '@/ui/logger';
+import { controlPlaneHttp, withControlPlaneHttpConfig } from '@/api/controlPlaneHttp';
 
 /**
  * Configuration for offline reconnection behavior.
@@ -75,7 +76,7 @@ export interface OfflineReconnectionConfig<TSession> {
 
     /**
      * Optional: override the health check function.
-     * Injected for testing. Default uses axios.get to /v1/sessions.
+     * Injected for testing. Default uses shared control-plane HTTP client.
      * Should throw on failure, resolve on success.
      */
     healthCheck?: () => Promise<void>;
@@ -153,10 +154,10 @@ export function startOfflineReconnection<TSession>(
      * Only 5xx or network errors trigger retry.
      */
     const defaultHealthCheck = async () => {
-        await axios.get(`${config.serverUrl}/v1/sessions`, {
+        await controlPlaneHttp.get(`${config.serverUrl}/v1/sessions`, withControlPlaneHttpConfig({
             timeout: 5000,
             validateStatus: (status) => status < 500 // 4xx = server is up, 5xx = server error
-        });
+        }));
     };
 
     const healthCheck = config.healthCheck ?? defaultHealthCheck;

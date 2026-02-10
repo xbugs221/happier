@@ -1,21 +1,33 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ApiClient } from './api';
-import axios from 'axios';
 import { connectionState } from '@/utils/serverConnectionErrors';
 
 // Use vi.hoisted to ensure mock functions are available when vi.mock factory runs
-const { mockPost, mockIsAxiosError } = vi.hoisted(() => ({
-    mockPost: vi.fn(),
-    mockIsAxiosError: vi.fn(() => true)
-}));
+const { mockPost, mockGet, mockCreate, mockIsAxiosError } = vi.hoisted(() => {
+    const post = vi.fn();
+    const get = vi.fn();
+    return {
+        mockPost: post,
+        mockGet: get,
+        mockCreate: vi.fn(() => ({ post, get })),
+        mockIsAxiosError: vi.fn(() => true)
+    };
+});
 
-vi.mock('axios', () => ({
-    default: {
+vi.mock('axios', () => {
+    const mockedAxios = {
+        create: mockCreate,
         post: mockPost,
+        get: mockGet,
         isAxiosError: mockIsAxiosError
-    },
-    isAxiosError: mockIsAxiosError
-}));
+    };
+
+    return {
+        default: mockedAxios,
+        create: mockCreate,
+        isAxiosError: mockIsAxiosError
+    };
+});
 
 vi.mock('@/ui/logger', () => ({
     logger: {
@@ -67,6 +79,7 @@ describe('Api server error handling', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks();
+        mockCreate.mockImplementation(() => ({ post: mockPost, get: mockGet }));
         connectionState.reset(); // Reset offline state between tests
 
         // Create a mock credential
@@ -308,6 +321,68 @@ describe('Api server error handling', () => {
             );
 
             consoleSpy.mockRestore();
+        });
+    });
+
+    describe('control-plane proxy policy', () => {
+        it('should disable ambient proxy handling for session bootstrap calls', async () => {
+            mockPost.mockRejectedValue({ code: 'ECONNREFUSED' });
+
+            await api.getOrCreateSession({
+                tag: 'proxy-test-tag',
+                metadata: testMetadata,
+                state: null
+            });
+
+            expect(mockPost).toHaveBeenCalledWith(
+                expect.stringContaining('/v1/sessions'),
+                expect.any(Object),
+                expect.objectContaining({ proxy: false })
+            );
+        });
+
+        it('should disable ambient proxy handling for machine bootstrap calls', async () => {
+            mockPost.mockRejectedValue({ code: 'ECONNREFUSED' });
+
+            await api.getOrCreateMachine({
+                machineId: 'proxy-machine',
+                metadata: testMachineMetadata
+            });
+
+            expect(mockPost).toHaveBeenCalledWith(
+                expect.stringContaining('/v1/machines'),
+                expect.any(Object),
+                expect.objectContaining({ proxy: false })
+            );
+        });
+
+        it('should disable ambient proxy handling for connect token endpoints', async () => {
+            mockPost.mockResolvedValue({ status: 200 });
+            mockGet.mockResolvedValue({ status: 200, data: { token: JSON.stringify({ apiKey: 'abc' }) } });
+
+            await api.registerVendorToken('openai', { apiKey: 'abc' });
+            await api.getVendorToken('openai');
+
+            expect(mockPost).toHaveBeenCalledWith(
+                expect.stringContaining('/v1/connect/openai/register'),
+                expect.any(Object),
+                expect.objectContaining({ proxy: false })
+            );
+            expect(mockGet).toHaveBeenCalledWith(
+                expect.stringContaining('/v1/connect/openai/token'),
+                expect.objectContaining({ proxy: false })
+            );
+        });
+
+        it('should disable ambient proxy handling for push-token fetch endpoints', async () => {
+            mockGet.mockResolvedValue({ data: { tokens: [] } });
+
+            await api.push().fetchPushTokens();
+
+            expect(mockGet).toHaveBeenCalledWith(
+                expect.stringContaining('/v1/push-tokens'),
+                expect.objectContaining({ proxy: false })
+            );
         });
     });
 });

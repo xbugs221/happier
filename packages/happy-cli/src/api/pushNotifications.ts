@@ -1,6 +1,6 @@
-import axios from 'axios'
 import { logger } from '@/ui/logger'
 import { Expo, ExpoPushMessage } from 'expo-server-sdk'
+import { controlPlaneHttp, withControlPlaneHttpConfig } from './controlPlaneHttp'
 
 export interface PushToken {
     id: string
@@ -26,14 +26,14 @@ export class PushNotificationClient {
      */
     async fetchPushTokens(): Promise<PushToken[]> {
         try {
-            const response = await axios.get<{ tokens: PushToken[] }>(
+            const response = await controlPlaneHttp.get<{ tokens: PushToken[] }>(
                 `${this.baseUrl}/v1/push-tokens`,
-                {
+                withControlPlaneHttpConfig({
                     headers: {
                         'Authorization': `Bearer ${this.token}`,
                         'Content-Type': 'application/json'
                     }
-                }
+                })
             )
 
             logger.debug(`Fetched ${response.data.tokens.length} push tokens`)

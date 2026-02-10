@@ -14,8 +14,13 @@
             "**/react-native",
             "**/react-native/**",
             "**/react-native-edge-to-edge/**",
-            "**/react-native-incall-manager/**"
+            "**/react-native-incall-manager/**",
+            "packages/happy-cli/ink",
+            "packages/happy-cli/ink/**"
         ]
+    },
+    "resolutions": {
+        "packages/happy-cli/react": "19.1.0"
     },
     "packageManager": "yarn@1.22.22"
 }

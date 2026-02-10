@@ -577,6 +577,10 @@ ${chalk.bold('Examples:')}
   happy auth login --force Authenticate
   happy doctor             Run diagnostics
 
+${chalk.bold('Proxy note:')}
+  Happy control-plane requests ignore ambient HTTP(S)_PROXY/ALL_PROXY vars.
+  Spawned Claude/Codex/Gemini processes still inherit your proxy env vars.
+
 ${chalk.bold('Happy supports ALL Claude options!')}
   Use any claude flag with happy as you would with claude. Our favorite:
 

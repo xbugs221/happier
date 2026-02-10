@@ -18,14 +18,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { startOfflineReconnection, printOfflineWarning, connectionState, isNetworkError, NETWORK_ERROR_CODES } from './serverConnectionErrors';
 
+const { mockAxiosGet, mockAxiosCreate } = vi.hoisted(() => {
+    const get = vi.fn();
+    return {
+        mockAxiosGet: get,
+        mockAxiosCreate: vi.fn(() => ({ get }))
+    };
+});
+
 // Mock axios - only isAxiosError needed for error type detection
 vi.mock('axios', () => ({
     default: {
-        get: vi.fn(),
+        get: mockAxiosGet,
+        create: mockAxiosCreate,
         isAxiosError: (e: unknown) => {
             return e !== null && typeof e === 'object' && 'isAxiosError' in e && (e as any).isAxiosError === true;
         }
     },
+    create: mockAxiosCreate,
     isAxiosError: (e: unknown) => {
         return e !== null && typeof e === 'object' && 'isAxiosError' in e && (e as any).isAxiosError === true;
     }
@@ -104,6 +114,34 @@ function createAxiosError(status: number): Error & { response: { status: number 
 describe('startOfflineReconnection', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockAxiosCreate.mockImplementation(() => ({ get: mockAxiosGet }));
+    });
+
+    describe('default health check', () => {
+        it('should use control-plane HTTP config that ignores ambient proxy settings', async () => {
+            mockAxiosGet.mockResolvedValue({ status: 200 });
+            const onReconnected = vi.fn().mockResolvedValue({ id: 'session' });
+
+            const handle = startOfflineReconnection({
+                serverUrl: 'http://test-server',
+                onReconnected,
+                onNotify: vi.fn(),
+                initialDelayMs: 1
+            });
+
+            await waitForReconnection(handle);
+
+            expect(mockAxiosGet).toHaveBeenCalledWith(
+                'http://test-server/v1/sessions',
+                expect.objectContaining({ proxy: false, timeout: 5000, validateStatus: expect.any(Function) })
+            );
+
+            const validateStatus = mockAxiosGet.mock.calls[0][1].validateStatus;
+            expect(validateStatus(499)).toBe(true);
+            expect(validateStatus(500)).toBe(false);
+
+            handle.cancel();
+        });
     });
 
     describe('successful reconnection', () => {
