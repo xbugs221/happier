@@ -110,7 +110,15 @@ export const MachineMetadataSchema = z.object({
     daemonLastKnownStatus: z.enum(['running', 'shutting-down']).optional(),
     daemonLastKnownPid: z.number().optional(),
     shutdownRequestedAt: z.number().optional(),
-    shutdownSource: z.enum(['happy-app', 'happy-cli', 'os-signal', 'unknown']).optional()
+    shutdownSource: z.enum(['happy-app', 'happy-cli', 'os-signal', 'unknown']).optional(),
+    // Proxy configuration
+    proxyConfig: z.object({
+        enabled: z.boolean(),
+        httpProxy: z.string().optional(), // HTTP proxy URL (e.g., http://proxy.example.com:8080)
+        httpsProxy: z.string().optional(), // HTTPS proxy URL (optional, defaults to httpProxy if empty)
+        allProxy: z.string().optional(), // SOCKS proxy URL (e.g., socks5://127.0.0.1:1080)
+        noProxy: z.string().optional(), // Comma-separated list of domains to exclude from proxy
+    }).optional()
 });
 
 export type MachineMetadata = z.infer<typeof MachineMetadataSchema>;

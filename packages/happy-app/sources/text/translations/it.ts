@@ -34,6 +34,7 @@ export const it: TranslationStructure = {
         cancel: 'Annulla',
         authenticate: 'Autentica',
         save: 'Salva',
+        saving: 'Salvataggio...',
         error: 'Errore',
         success: 'Successo',
         ok: 'OK',
@@ -913,7 +914,39 @@ export const it: TranslationStructure = {
         friendRequestGeneric: 'Nuova richiesta di amicizia',
         friendAccepted: ({ name }: { name: string }) => `Ora sei amico di ${name}`,
         friendAcceptedGeneric: 'Richiesta di amicizia accettata',
-    }
+    },
+
+    proxyConfig: {
+        title: 'Proxy Settings',
+        configureProxy: 'Configure Proxy',
+        statusEnabled: 'Enabled',
+        statusDisabled: 'Disabled',
+        currentHttpProxy: 'Current HTTP Proxy',
+        generalSettings: 'General Settings',
+        enableProxy: 'Enable Proxy',
+        enableProxyDescription: 'Enable proxy configuration for all sessions launched on this machine',
+        securityWarning: 'Warning: Proxy configuration contains sensitive information (may include username and password). Do not configure proxy on untrusted devices.',
+        httpProxySettings: 'HTTP Proxy Settings',
+        httpProxy: 'HTTP Proxy',
+        httpProxyPlaceholder: 'http://proxy.example.com:8080',
+        httpsProxy: 'HTTPS Proxy',
+        httpsProxyPlaceholder: 'Leave empty to use HTTP proxy',
+        advancedSettings: 'Advanced Settings',
+        allProxy: 'All Proxy (SOCKS)',
+        allProxyPlaceholder: 'socks5://127.0.0.1:1080',
+        noProxy: 'No Proxy (Exclusion List)',
+        noProxyPlaceholder: 'localhost,127.0.0.1,.local',
+        saveSuccess: 'Proxy configuration saved',
+        saveFailed: 'Failed to save proxy configuration',
+        errors: {
+            required: 'This field is required',
+            invalidScheme: 'Proxy URL must start with http://, https://, socks4://, socks5://, or socks://',
+            missingHostname: 'Hostname is missing',
+            invalidPort: 'Port must be between 1 and 65535',
+            invalidFormat: 'Invalid URL format',
+            atLeastOneProxy: 'At least one proxy (HTTP or All Proxy) must be configured when proxy is enabled',
+        },
+    },
 } as const;
 
 export type TranslationsIt = typeof it;

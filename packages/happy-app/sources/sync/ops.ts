@@ -5,7 +5,8 @@
 
 import { apiSocket } from './apiSocket';
 import { sync } from './sync';
-import type { MachineMetadata } from './storageTypes';
+import { storage } from './storage';
+import type { MachineMetadata, Machine } from './storageTypes';
 
 // Strict type definitions for all operations
 
@@ -162,6 +163,49 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
     const { machineId, directory, approvedNewDirectoryCreation = false, token, agent, environmentVariables } = options;
 
     try {
+        // Merge machine-level proxy configuration into environment variables
+        let mergedEnvVars = { ...environmentVariables };
+
+        // Get machine metadata to check for proxy configuration
+        const machineStore = storage.getState().machines;
+        // @ts-ignore - Type narrowing issue with find
+        const machine: Machine | undefined = machineStore?.find((m) => typeof m !== 'string' && m.id === machineId);
+
+        if (machine && machine.metadata?.proxyConfig?.enabled) {
+            const proxyConfig = machine.metadata.proxyConfig;
+
+            // Convert proxy config to environment variables (machine level)
+            const proxyEnvVars: Record<string, string> = {};
+
+            if (proxyConfig.httpProxy) {
+                proxyEnvVars.http_proxy = proxyConfig.httpProxy;
+                proxyEnvVars.HTTP_PROXY = proxyConfig.httpProxy;
+            }
+
+            if (proxyConfig.httpsProxy) {
+                proxyEnvVars.https_proxy = proxyConfig.httpsProxy;
+                proxyEnvVars.HTTPS_PROXY = proxyConfig.httpsProxy;
+            } else if (proxyConfig.httpProxy) {
+                // If httpsProxy is not set, use httpProxy for HTTPS as well
+                proxyEnvVars.https_proxy = proxyConfig.httpProxy;
+                proxyEnvVars.HTTPS_PROXY = proxyConfig.httpProxy;
+            }
+
+            if (proxyConfig.allProxy) {
+                proxyEnvVars.all_proxy = proxyConfig.allProxy;
+                proxyEnvVars.ALL_PROXY = proxyConfig.allProxy;
+            }
+
+            if (proxyConfig.noProxy) {
+                proxyEnvVars.no_proxy = proxyConfig.noProxy;
+                proxyEnvVars.NO_PROXY = proxyConfig.noProxy;
+            }
+
+            // Merge proxy env vars with user-provided env vars
+            // User-provided env vars take precedence (session-level overrides machine-level)
+            mergedEnvVars = { ...proxyEnvVars, ...environmentVariables };
+        }
+
         const result = await apiSocket.machineRPC<SpawnSessionResult, {
             type: 'spawn-in-directory'
             directory: string
@@ -172,7 +216,7 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
         }>(
             machineId,
             'spawn-happy-session',
-            { type: 'spawn-in-directory', directory, approvedNewDirectoryCreation, token, agent, environmentVariables }
+            { type: 'spawn-in-directory', directory, approvedNewDirectoryCreation, token, agent, environmentVariables: mergedEnvVars }
         );
         return result;
     } catch (error) {

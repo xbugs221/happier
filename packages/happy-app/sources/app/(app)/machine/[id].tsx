@@ -7,7 +7,7 @@ import { ItemList } from '@/components/ItemList';
 import { Typography } from '@/constants/Typography';
 import { useSessions, useAllMachines, useMachine } from '@/sync/storage';
 import { Ionicons, Octicons } from '@expo/vector-icons';
-import type { Session } from '@/sync/storageTypes';
+import type { Session, MachineMetadata } from '@/sync/storageTypes';
 import { machineStopDaemon, machineUpdateMetadata } from '@/sync/ops';
 import { Modal } from '@/modal';
 import { formatPathRelativeToHome, getSessionName, getSessionSubtitle } from '@/utils/sessionUtils';
@@ -19,6 +19,7 @@ import { useNavigateToSession } from '@/hooks/useNavigateToSession';
 import { machineSpawnNewSession } from '@/sync/ops';
 import { resolveAbsolutePath } from '@/utils/pathUtils';
 import { MultiTextInput, type MultiTextInputHandle } from '@/components/MultiTextInput';
+import { ProxyConfigEditor } from '@/components/ProxyConfigEditor';
 
 const styles = StyleSheet.create((theme) => ({
     pathInputContainer: {
@@ -76,6 +77,7 @@ export default function MachineDetailScreen() {
     const [isSpawning, setIsSpawning] = useState(false);
     const inputRef = useRef<MultiTextInputHandle>(null);
     const [showAllPaths, setShowAllPaths] = useState(false);
+    const [showProxyEditor, setShowProxyEditor] = useState(false);
     // Variant D only
 
     const machineSessions = useMemo(() => {
@@ -201,6 +203,22 @@ export default function MachineDetailScreen() {
             } finally {
                 setIsRenamingMachine(false);
             }
+        }
+    };
+
+    const handleSaveProxyConfig = async (proxyConfig: NonNullable<MachineMetadata>['proxyConfig']) => {
+        if (!machine || !machineId || !machine.metadata) return;
+        try {
+            await machineUpdateMetadata(
+                machineId!,
+                { ...machine.metadata!, proxyConfig },
+                machine.metadataVersion
+            );
+            await sync.refreshMachines();
+            setShowProxyEditor(false);
+            Modal.alert(t('common.success'), t('proxyConfig.saveSuccess'));
+        } catch (error) {
+            Modal.alert(t('common.error'), error instanceof Error ? error.message : t('proxyConfig.saveFailed'));
         }
     };
 
@@ -487,6 +505,28 @@ export default function MachineDetailScreen() {
                         />
                 </ItemGroup>
 
+                {/* Proxy Configuration */}
+                <ItemGroup title={t('proxyConfig.title')}>
+                    <Item
+                        title={t('proxyConfig.configureProxy')}
+                        subtitle={
+                            machine.metadata?.proxyConfig?.enabled
+                                ? t('proxyConfig.statusEnabled')
+                                : t('proxyConfig.statusDisabled')
+                        }
+                        onPress={() => setShowProxyEditor(true)}
+                        rightElement={<Ionicons name="chevron-forward" size={20} color="#C7C7CC" />}
+                    />
+                    {machine.metadata?.proxyConfig?.enabled && machine.metadata.proxyConfig.httpProxy && (
+                        <Item
+                            title={t('proxyConfig.currentHttpProxy')}
+                            subtitle={machine.metadata.proxyConfig.httpProxy}
+                            subtitleLines={1}
+                            showChevron={false}
+                        />
+                    )}
+                </ItemGroup>
+
                 {/* Previous Sessions (debug view) */}
                 {previousSessions.length > 0 && (
                     <ItemGroup title={'Previous Sessions (up to 5 most recent)'}>
@@ -548,6 +588,15 @@ export default function MachineDetailScreen() {
                         />
                 </ItemGroup>
             </ItemList>
+
+            {/* Proxy Configuration Modal */}
+            {showProxyEditor && machine && (
+                <ProxyConfigEditor
+                    initialConfig={machine.metadata?.proxyConfig}
+                    onSave={handleSaveProxyConfig}
+                    onCancel={() => setShowProxyEditor(false)}
+                />
+            )}
         </>
     );
 }
